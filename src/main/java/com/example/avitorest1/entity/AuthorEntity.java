@@ -1,6 +1,8 @@
 package com.example.avitorest1.entity;
 
+import com.example.avitorest1.enums.RoleEnum;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
@@ -20,6 +22,12 @@ public class AuthorEntity {
     private String name;
     @NotNull
     @Column(name = "email",nullable = false,unique = true)
+    @Email
     private String email;
-
+    @Column(name="firstName")
+    private String firstName;
+    @Column(name="lastName")
+    private String lastName;
+    @Column(name="role", nullable = false)
+    private RoleEnum role;
 }

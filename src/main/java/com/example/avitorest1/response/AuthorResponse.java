@@ -1,6 +1,8 @@
 package com.example.avitorest1.response;
 
 
+import com.example.avitorest1.enums.RoleEnum;
+import jakarta.persistence.Column;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -16,4 +18,10 @@ public class AuthorResponse {
     private String name;
 
     private String email;
+
+    private String firstName;
+
+    private String lastName;
+
+    private RoleEnum role;
 }

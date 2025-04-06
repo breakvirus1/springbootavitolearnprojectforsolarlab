@@ -29,8 +29,8 @@ public class AuthorController {
     @Operation(summary = "Новый автор")
     @ResponseStatus(HttpStatus.CREATED)
     public void createAuthor(@RequestBody AuthorRequest authorRequest) {
+
         authorService.createAuthor(authorRequest);
-//        return authorService.createAuthor(authorRequest);
 
     }
 
@@ -42,7 +42,7 @@ public class AuthorController {
     }
 
     // Получить автора по ID
-    @GetMapping("/{id}")
+    @GetMapping("{id}")
     public ResponseEntity<AuthorEntity> getAuthorById(@PathVariable Long id) {
         Optional<AuthorEntity> author = authorRepository.findById(id);
         return author.map(value -> new ResponseEntity<>(value, HttpStatus.OK))
@@ -61,13 +61,11 @@ public class AuthorController {
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
-//    // Удалить автора
-//    @DeleteMapping("/{id}")
-//    public ResponseEntity<Void> deleteAuthor(@PathVariable Long id) {
-//        if (authorRepository.existsById(id)) {
-//            authorRepository.deleteById(id);
-//            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-//        }
-//        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-//    }
+    // Удалить автора
+    @DeleteMapping("/{id}")
+    public ResponseEntity<AuthorEntity> deleteAuthor(@PathVariable Long id) {
+            authorRepository.deleteById(id);
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+
+    }
 }

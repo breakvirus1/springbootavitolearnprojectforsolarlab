@@ -1,5 +1,6 @@
 package com.example.avitorest1.request;
 
+import com.example.avitorest1.enums.RoleEnum;
 import lombok.*;
 
 
@@ -13,4 +14,9 @@ public class AuthorRequest {
     private String name;
 
     private String email;
+    private String firstName;
+
+    private String lastName;
+
+    private RoleEnum role;
 }
