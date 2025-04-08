@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -69,24 +70,24 @@ public class DataInitService {
                     authors.stream().map(a -> a.getId() != null ? a.getId().toString() : "null").collect(Collectors.joining(", ")));
         }
         List<PostEntity> posts = new ArrayList<>();
-        for (int i = 0; i < 5; i++) {
-
-
+        for (int i = 0; i < 25; i++) {
             PostEntity post = new PostEntity();
             post.setName("Post name - " + i);
             post.setCategory(CategoryEnum.values()[i % CategoryEnum.values().length]);
-            int authorIndex = i % authors.size(); // Убедимся, что индекс в пределах размера списка
-            AuthorEntity author = authors.get(authorIndex);
-            if (author == null) {
-                logger.error("Автор с индексом {} равен null", authorIndex);
-                throw new IllegalStateException("Найден null в списке авторов");
+            int authorIndex = i % authors.size();
+            AuthorEntity authorEntityIndex = authors.get(authorIndex);
+            Optional<AuthorEntity> authorOptional = authorRepository.findById(authorEntityIndex.getId());
+//            String authorName = authors.get(authorIndex).getName();
+            if (authorOptional.isEmpty()) {
+                logger.error("Автор с ID {} не найден", authorEntityIndex.getId());
+                throw new IllegalStateException("Автор не найден");
             }
-            post.setAuthorName();//поменять на автор id
+            post.setAuthor(authorOptional.get());
             post.setDate(now);
             post.setDescription("описание " + i * 10);
             post.setPrice(i * 1000);
             posts.add(post);
-            logger.info("\nДобавлен пост : {} автор поста {}", post.getName(), author.getName());
+            logger.info("\nДобавлен пост : {} автор поста {}", post.getName(), authorEntityIndex.getEmail());
         }
 
 

@@ -6,7 +6,6 @@ import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 
 @Data
 @Getter
@@ -16,10 +15,6 @@ import java.util.Date;
 @Entity
 @Table(name="posts", uniqueConstraints = @UniqueConstraint(columnNames = "id"))
 public class PostEntity {
-//    @Version
-//    @Column(name = "version")
-//    private int version;
-//
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", unique = true)
@@ -37,8 +32,8 @@ public class PostEntity {
     @Column(name = "price")
     private int price;
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "author_name",nullable = false)
-    private AuthorEntity authorName;
+    @JoinColumn(name = "author_id",nullable = false)
+    private AuthorEntity author;
 
 
 }

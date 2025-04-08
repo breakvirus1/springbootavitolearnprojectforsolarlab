@@ -28,6 +28,7 @@ public class AuthorEntity {
     private String firstName;
     @Column(name="lastName")
     private String lastName;
+    @Enumerated(EnumType.STRING)
     @Column(name="role", nullable = false)
     private RoleEnum role;
 }

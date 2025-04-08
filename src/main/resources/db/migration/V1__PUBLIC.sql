@@ -5,7 +5,7 @@ CREATE TABLE authors
     email      VARCHAR(255)                            NOT NULL,
     first_name VARCHAR(255),
     last_name  VARCHAR(255),
-    role       SMALLINT                                NOT NULL,
+    role       VARCHAR(255)                            NOT NULL,
     CONSTRAINT pk_authors PRIMARY KEY (id)
 );
 
@@ -17,7 +17,7 @@ CREATE TABLE posts
     description VARCHAR(255),
     posted_at   TIMESTAMP WITHOUT TIME ZONE,
     price       INTEGER,
-    author_name BIGINT                                  NOT NULL,
+    author_id   BIGINT                                  NOT NULL,
     CONSTRAINT pk_posts PRIMARY KEY (id)
 );
 
@@ -28,4 +28,4 @@ ALTER TABLE authors
     ADD CONSTRAINT uc_authors_email UNIQUE (email);
 
 ALTER TABLE posts
-    ADD CONSTRAINT FK_POSTS_ON_AUTHOR_NAME FOREIGN KEY (author_name) REFERENCES authors (id);
+    ADD CONSTRAINT FK_POSTS_ON_AUTHOR FOREIGN KEY (author_id) REFERENCES authors (id);
