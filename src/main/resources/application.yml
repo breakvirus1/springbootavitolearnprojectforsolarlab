@@ -1,0 +1,56 @@
+logging:
+    level:
+        com:
+            example: DEBUG
+        org:
+            hibernate:
+                SQL: INFO
+                type:
+                    descriptor:
+                        sql:
+                            BasicBinder: TRACE
+            root: INFO
+spring:
+    security:
+        oauth2:
+            resourceserver:
+                jwt:
+                    issuer-uri: http://localhost:8083/auth/realms/baeldung
+                    jwk-set-uri: http://localhost:8083/auth/realms/baeldung/protocol/openid-connect/certs
+    application:
+        name: avitorest1
+    datasource:
+        driverClassName: org.postgresql.Driver
+        password: 1
+        url: jdbc:postgresql://localhost:5432/avitodb
+        username: postgres
+    flyway:
+        baseline-on-migrate: true
+        baseline-version: 1
+        enabled: true
+        locations: classpath:db/migration
+        placeholders:
+            schema: public
+        schemas: public
+    jackson:
+        serialization:
+            FAIL_ON_EMPTY_BEANS: false
+    jpa:
+        database-platform: org.hibernate.dialect.PostgreSQLDialect
+        hibernate:
+            ddl-auto: validate
+        properties:
+            hibernate:
+                dialect: org.hibernate.dialect.PostgreSQLDialect
+                format_sql: true
+        show-sql: false
+springdoc:
+    swagger-ui:
+        enabled: true
+        operationsSorter: alpha
+        path: /swagger-ui.html
+        tagsSorter: alpha
+server:
+    port: 8081
+    servlet:
+        context-path: /resource-server
