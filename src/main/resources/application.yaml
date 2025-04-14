@@ -1,0 +1,55 @@
+server:
+  port: 8080  # Порт приложения (можно изменить на любой свободный, например, 9090)
+
+spring:
+  application:
+    name: avitorest1
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/avitodb
+    driver-class-name: org.postgresql.Driver
+    username: postgres
+    password: 1
+
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: validate
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+    baseline-version: 1
+    schemas: public
+    placeholders:
+      schema: public
+
+  jackson:
+    serialization:
+      FAIL_ON_EMPTY_BEANS: false
+
+  doc:
+    swagger-ui:
+      path: /swagger-ui.html
+      enabled: true
+      operationsSorter: alpha
+      tagsSorter: alpha
+
+logging:
+  level:
+    org:
+      root: DEBUG
+      hibernate:
+        SQL: DEBUG
+        type:
+          descriptor:
+            sql:
+              BasicBinder: TRACE
+    com:
+      example: DEBUG

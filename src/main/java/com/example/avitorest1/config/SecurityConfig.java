@@ -1,8 +1,8 @@
 package com.example.avitorest1.config;
 
-
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.SecurityFilterChain;
 
@@ -14,10 +14,16 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(auth -> auth
-                        .anyRequest().permitAll() // Разрешаем ВСЕ запросы без проверки авторизации
+                        .requestMatchers(
+                                "/api/**",
+                                "/swagger-ui/**",
+                                "/v3/api-docs/**",
+                                "/swagger-resources/**"
+                        ).permitAll()
                 )
-                .csrf(csrf -> csrf.disable()); // Отключаем CSRF (для API обычно не нужен)
+                .csrf(csrf -> csrf.disable());
 
         return http.build();
     }
+
 }
