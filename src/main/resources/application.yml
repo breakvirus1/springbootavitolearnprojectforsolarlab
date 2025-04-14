@@ -10,13 +10,22 @@ logging:
                         sql:
                             BasicBinder: TRACE
             root: INFO
+
 spring:
-    security:
-        oauth2:
-            resourceserver:
-                jwt:
-                    issuer-uri: http://localhost:8083/auth/realms/baeldung
-                    jwk-set-uri: http://localhost:8083/auth/realms/baeldung/protocol/openid-connect/certs
+#    security:
+#        oauth2:
+#            client:
+#                registration:
+#                    keycloak:
+#                        client-id: web-api
+#                        client-secret: ваш-client-secret
+#                        scope: openid,profile,email
+#                provider:
+#                    keycloak:
+#                        issuer-uri: http://localhost:8080/realms/web-api-realm
+#            resourceserver:
+#                jwt:
+#                    issuer-uri: http://localhost:8080/realms/web-api-realm
     application:
         name: avitorest1
     datasource:

@@ -10,10 +10,13 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
+
+import static org.springframework.data.jpa.domain.AbstractPersistable_.id;
 
 @RestController
 @AllArgsConstructor
@@ -28,6 +31,7 @@ public class AuthorController {
     @PostMapping
     @Operation(summary = "Новый автор")
     @ResponseStatus(HttpStatus.CREATED)
+    @PreAuthorize("hasRole('ADMIN')")
     public void createAuthor(@RequestBody AuthorRequest authorRequest) {
 
         authorService.createAuthor(authorRequest);
@@ -51,6 +55,7 @@ public class AuthorController {
 
     // Обновить автора
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<AuthorEntity> updateAuthor(@PathVariable Long id, @RequestBody AuthorEntity updatedAuthor) {
         Optional<AuthorEntity> existingAuthor = authorRepository.findById(id);
         if (existingAuthor.isPresent()) {
@@ -62,6 +67,7 @@ public class AuthorController {
     }
 
     // Удалить автора
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<AuthorEntity> deleteAuthor(@PathVariable Long id) {
             authorRepository.deleteById(id);

@@ -22,6 +22,7 @@ import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
@@ -48,7 +49,9 @@ public class PostController {
     private final AuthorRepository aRepository;
 
 
-    // Создать нового автора
+    //новый пост
+    @PreAuthorize("hasRole('ADMIN') or @postSecurity.isPostAuthor(principal, #id)")
+
     @PostMapping
     @Operation(summary = "Новый пост")
     @ResponseStatus(HttpStatus.CREATED)
@@ -98,6 +101,8 @@ public class PostController {
 
 
     // обновить пост
+    @PreAuthorize("hasRole('ADMIN') or @postSecurity.isPostAuthor(principal, #id)")
+
     @PutMapping("{id}")
     @Operation(summary = "обновление поста")
 //    @ApiResponses(value = {
@@ -113,6 +118,8 @@ public class PostController {
 
 
     // Удалить пост
+    @PreAuthorize("hasRole('ADMIN') or @postSecurity.isPostAuthor(principal, #id)")
+
     @DeleteMapping("{id}")
     @Operation(summary = "удаление поста")
 //    @ApiResponses(value = {
