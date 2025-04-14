@@ -57,9 +57,9 @@ springdoc:
     swagger-ui:
         enabled: true
         operationsSorter: alpha
-        path: /swagger-ui.html
+        path: /swagger-ui
         tagsSorter: alpha
 server:
-    port: 8081
+    port: 8080
     servlet:
-        context-path: /resource-server
+        context-path: /

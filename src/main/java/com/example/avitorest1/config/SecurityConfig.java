@@ -31,31 +31,9 @@ public class SecurityConfig {
                                 "/swagger-resources/**"
                         ).permitAll()
                 )
-                .oauth2ResourceServer(oauth2 -> oauth2
-                        .jwt(jwt -> jwt
-                                .jwtAuthenticationConverter(jwtAuthenticationConverter())
-                        )
-                )
                 .csrf(csrf -> csrf.disable());
 
         return http.build();
     }
 
-    private JwtAuthenticationConverter jwtAuthenticationConverter() {
-        JwtAuthenticationConverter jwtConverter = new JwtAuthenticationConverter();
-        jwtConverter.setJwtGrantedAuthoritiesConverter(new KeycloakRealmRoleConverter());
-        return jwtConverter;
-    }
-
-
-    static class KeycloakRealmRoleConverter implements Converter<Jwt, Collection<GrantedAuthority>> {
-        @Override
-        public Collection<GrantedAuthority> convert(Jwt jwt) {
-            final Map<String, Object> realmAccess = (Map<String, Object>) jwt.getClaims().get("realm_access");
-            return ((List<String>) realmAccess.get("roles")).stream()
-                    .map(roleName -> "ROLE_" + roleName)
-                    .map(SimpleGrantedAuthority::new)
-                    .collect(Collectors.toList());
-        }
-    }
 }
