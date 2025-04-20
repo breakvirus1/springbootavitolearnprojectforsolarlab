@@ -12,12 +12,11 @@ import java.util.List;
 
 @Mapper(componentModel = "spring")
 public interface AuthorMapper {
-//    AuthorMapper INSTANCE = Mappers.getMapper(AuthorMapper.class);
-//    @Mapping(target = "id", ignore = true)
-//    @Mapping(target = "authorEntityName", ignore = false)
-//    @Mapping(target = "authorEntityEmail", ignore = false)
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "password", ignore = true)
     AuthorEntity toAuthor(AuthorRequest authorRequest);
     AuthorResponse toAuthorResponse(AuthorEntity authorEntity);
     List<AuthorResponse> toListAuthorResponse(List<AuthorEntity> authorEntityList);
+    AuthorEntity loginAuthor(AuthorRequest authorRequest);
 
 }

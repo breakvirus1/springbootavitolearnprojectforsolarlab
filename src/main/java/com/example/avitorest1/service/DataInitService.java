@@ -41,21 +41,18 @@ public class DataInitService {
             postRepository.deleteAll();
             postRepository.flush();
         }
-        if (authorRepository.count() != 0) {
-            authorRepository.deleteAll();
-            authorRepository.flush();
-        }
+
         List<AuthorEntity> authors = new ArrayList<>();
         List<String> authorNames = new ArrayList<>();
         for (int i = 0; i < 5; i++) {
             AuthorEntity author = new AuthorEntity();
             String authorName = "author" + i;
             authorNames.add(authorName);
-            author.setName("автор - " + i);
+            author.setUsername("автор - " + i);
             author.setEmail("author-" + i + "@gmail.com");
             author.setFirstName("firstName - " + i);
             author.setLastName("lastName - " + i);
-            author.setRole(i % 2 == 0 ? RoleEnum.ADMIN : RoleEnum.USER);
+            author.setRole(i % 2 == 0 ? RoleEnum.ROLE_ADMIN : RoleEnum.ROLE_USER);
             authors.add(author);
             logger.info("\nДобавлен автор : {}", authorName);
         }

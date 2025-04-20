@@ -10,22 +10,10 @@ logging:
                         sql:
                             BasicBinder: TRACE
             root: INFO
+            springframework:
+                security: DEBUG
 
 spring:
-#    security:
-#        oauth2:
-#            client:
-#                registration:
-#                    keycloak:
-#                        client-id: web-api
-#                        client-secret: ваш-client-secret
-#                        scope: openid,profile,email
-#                provider:
-#                    keycloak:
-#                        issuer-uri: http://localhost:8080/realms/web-api-realm
-#            resourceserver:
-#                jwt:
-#                    issuer-uri: http://localhost:8080/realms/web-api-realm
     application:
         name: avitorest1
     datasource:
@@ -47,9 +35,12 @@ spring:
     jpa:
         database-platform: org.hibernate.dialect.PostgreSQLDialect
         hibernate:
-            ddl-auto: validate
+            ddl-auto: update
         properties:
             hibernate:
+                transaction:
+                  jta:
+                      platform: org.hibernate.engine.transaction.jta.platform.NoJtaPlatform
                 dialect: org.hibernate.dialect.PostgreSQLDialect
                 format_sql: true
         show-sql: false
@@ -63,3 +54,7 @@ server:
     port: 8080
     servlet:
         context-path: /
+
+app:
+  jwt-secret: "c8bea761d1d42bf828c42b9e0cdbe23f490b58a67828ab30231ad965caf12f52"
+  jwt-expiration-milliseconds: 604800000

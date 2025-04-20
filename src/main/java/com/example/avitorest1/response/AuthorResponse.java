@@ -24,4 +24,5 @@ public class AuthorResponse {
     private String lastName;
 
     private RoleEnum role;
+    private String password;
 }
