@@ -6,10 +6,12 @@ import com.example.avitorest1.enums.CategoryEnum;
 import com.example.avitorest1.enums.RoleEnum;
 import com.example.avitorest1.repository.AuthorRepository;
 import com.example.avitorest1.repository.PostRepository;
-import lombok.*;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,13 +27,16 @@ import java.util.stream.Collectors;
 public class DataInitService {
     private final AuthorRepository authorRepository;
     private final PostRepository postRepository;
+    private final PasswordEncoder passwordEncoder;
+
     @Getter
     @Setter
     private LocalDateTime now = LocalDateTime.now();
 
-    public DataInitService(AuthorRepository authorRepository, PostRepository postRepository) {
+    public DataInitService(AuthorRepository authorRepository, PostRepository postRepository, PasswordEncoder passwordEncoder) {
         this.authorRepository = authorRepository;
         this.postRepository = postRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     final Logger logger = LoggerFactory.getLogger(DataInitService.class);
@@ -51,7 +56,8 @@ public class DataInitService {
             AuthorEntity author = new AuthorEntity();
             String authorName = "author" + i;
             authorNames.add(authorName);
-            author.setName("автор - " + i);
+            author.setUsername("author" + i);
+            author.setPassword(passwordEncoder.encode("password" + i));
             author.setEmail("author-" + i + "@gmail.com");
             author.setFirstName("firstName - " + i);
             author.setLastName("lastName - " + i);
@@ -59,7 +65,6 @@ public class DataInitService {
             authors.add(author);
             logger.info("\nДобавлен автор : {}", authorName);
         }
-
 
         authorRepository.saveAll(authors);
         if (authors.isEmpty()) {
@@ -77,7 +82,6 @@ public class DataInitService {
             int authorIndex = i % authors.size();
             AuthorEntity authorEntityIndex = authors.get(authorIndex);
             Optional<AuthorEntity> authorOptional = authorRepository.findById(authorEntityIndex.getId());
-//            String authorName = authors.get(authorIndex).getName();
             if (authorOptional.isEmpty()) {
                 logger.error("Автор с ID {} не найден", authorEntityIndex.getId());
                 throw new IllegalStateException("Автор не найден");
@@ -89,7 +93,6 @@ public class DataInitService {
             posts.add(post);
             logger.info("\nДобавлен пост : {} автор поста {}", post.getName(), authorEntityIndex.getEmail());
         }
-
 
         logger.info("Сохранено постов перед: {}", postRepository.count());
         postRepository.saveAll(posts);

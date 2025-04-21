@@ -16,8 +16,15 @@ public interface AuthorMapper {
 //    @Mapping(target = "id", ignore = true)
 //    @Mapping(target = "authorEntityName", ignore = false)
 //    @Mapping(target = "authorEntityEmail", ignore = false)
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "password", ignore = true)
+    @Mapping(target = "username", source = "name")
     AuthorEntity toAuthor(AuthorRequest authorRequest);
+
+    @Mapping(target = "name", source = "username")
+    @Mapping(target = "role", constant = "USER")
     AuthorResponse toAuthorResponse(AuthorEntity authorEntity);
+
     List<AuthorResponse> toListAuthorResponse(List<AuthorEntity> authorEntityList);
 
 }

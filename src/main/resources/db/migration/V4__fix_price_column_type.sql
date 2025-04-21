@@ -1,0 +1,1 @@
+ALTER TABLE posts ALTER COLUMN price TYPE INTEGER USING price::integer; 

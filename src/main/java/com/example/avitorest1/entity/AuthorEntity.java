@@ -1,34 +1,35 @@
 package com.example.avitorest1.entity;
 
 import com.example.avitorest1.enums.RoleEnum;
-import jakarta.persistence.*;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotNull;
-import lombok.*;
 
-@Entity
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 @Data
-@AllArgsConstructor
-@NoArgsConstructor
-@Getter
-@Setter
+@Entity
 @Table(name = "authors")
+@NoArgsConstructor
+@AllArgsConstructor
 public class AuthorEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @NotNull
-    @Column(name="name", nullable = false,length = 100)
-    private String name;
-    @NotNull
-    @Column(name = "email",nullable = false,unique = true)
-    @Email
+
+    @Column(unique = true, nullable = false)
+    private String username;
+
+    @Column(nullable = false)
+    private String password;
+
+    @Column(nullable = false)
     private String email;
-    @Column(name="firstName")
+
     private String firstName;
-    @Column(name="lastName")
     private String lastName;
+    @NotNull
     @Enumerated(EnumType.STRING)
-    @Column(name="role", nullable = false)
     private RoleEnum role;
 }
