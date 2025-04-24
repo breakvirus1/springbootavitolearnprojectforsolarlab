@@ -19,19 +19,21 @@ public class AuthorEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @NotNull
-    @Column(name="name", nullable = false,length = 100)
+    @Column(nullable = false, length = 100)
     private String username;
     @NotBlank
-    @Column(name = "email",nullable = false,unique = true)
     @Email
+    @Column(nullable = false, unique = true)
     private String email;
-    @Column(name="firstName")
+    @Column(name = "first_name")
     private String firstName;
-    @Column(name="lastName")
+    @Column(name = "last_name")
     private String lastName;
     @Enumerated(EnumType.STRING)
-    @Column(name="role", nullable = false)
+    @Column(nullable = false)
     private RoleEnum role;
-    @Column(name="password", nullable=false)
+    @Column(nullable = false)
     private String password;
+    @Column(nullable = false)
+    private Double money = 0.0;
 }

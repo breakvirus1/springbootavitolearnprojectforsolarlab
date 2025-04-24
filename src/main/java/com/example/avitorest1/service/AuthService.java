@@ -1,13 +1,9 @@
 package com.example.avitorest1.service;
 
-import com.example.avitorest1.DTO.LoginDto;
-import com.example.avitorest1.entity.AuthorEntity;
-import com.example.avitorest1.request.AuthorRequest;
+import com.example.avitorest1.request.LoginRequest;
+
 
 public interface AuthService {
-    String login(LoginDto loginDto);
-//    String register(AuthorEntity authorEntity);
+    String login(LoginRequest loginRequest);
 
-    void register(AuthorRequest authorRequest);
-    void logout();
 }

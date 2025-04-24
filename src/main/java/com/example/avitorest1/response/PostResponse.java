@@ -1,11 +1,10 @@
 package com.example.avitorest1.response;
 
-import com.example.avitorest1.entity.AuthorEntity;
 import com.example.avitorest1.enums.CategoryEnum;
 import lombok.*;
 
 import java.time.LocalDateTime;
-import java.util.Date;
+
 
 @Data
 @Builder
@@ -15,18 +14,20 @@ import java.util.Date;
 
 public class PostResponse {
 
-//    private Long id;
+    private Long id;
 
     private String name;
 
-    private CategoryEnum category;
-
     private String description;
+
+    private Integer price;
+
+    private CategoryEnum category;
 
     private LocalDateTime date;
 
-    private int price;
+    private Long authorId;
 
-    private AuthorEntity author;
+    private String authorName;
 }
 

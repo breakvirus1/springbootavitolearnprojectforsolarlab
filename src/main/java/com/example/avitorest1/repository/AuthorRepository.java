@@ -15,5 +15,5 @@ public interface AuthorRepository extends JpaRepository<AuthorEntity,String> {
     Optional<AuthorEntity> deleteByUsername(String name);
     boolean existsByUsername(String username);
 
-    boolean existsByEmail(String email);
+    boolean existsById(Long id);
 }

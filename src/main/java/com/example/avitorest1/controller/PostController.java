@@ -1,136 +1,126 @@
 package com.example.avitorest1.controller;
 
-import com.example.avitorest1.entity.AuthorEntity;
-import com.example.avitorest1.entity.PostEntity;
-import com.example.avitorest1.mapper.PostMapper;
-import com.example.avitorest1.repository.AuthorRepository;
-import com.example.avitorest1.repository.PostRepository;
 import com.example.avitorest1.request.PostRequest;
 import com.example.avitorest1.response.PostResponse;
-import com.example.avitorest1.service.AuthorService;
 import com.example.avitorest1.service.PostService;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.stereotype.Controller;
-import org.springframework.validation.BindingResult;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.List;
-import java.util.Objects;
 
 @RestController
-@AllArgsConstructor
-@Tag(name = "посты", description = "API постов")
 @RequestMapping("/api/posts")
-@Controller
+@RequiredArgsConstructor
+@Tag(name = "посты", description = "API постов")
 public class PostController {
-
-    private final AuthorRepository authorRepository;
-    final Logger logger = LoggerFactory.getLogger(PostController.class);
     private final PostService postService;
-    private final PostRepository postRepository;
-    private final List<PostEntity> postEntityList;
-    private final AuthorService authorService;
-    private final PostMapper postMapper;
-    private final AuthorRepository aRepository;
-
-
-    //новый пост
-    @PreAuthorize("hasRole('ADMIN') or @postSecurity.isPostAuthor(principal, #id)")
+    private final Logger logger = LoggerFactory.getLogger(PostController.class);
 
     @PostMapping
-    @Operation(summary = "Новый пост")
-    @ResponseStatus(HttpStatus.CREATED)
-//    @ApiResponses(value = {
-//            @ApiResponse(responseCode = "200", description = "всё ok"),
-//            @ApiResponse(responseCode = "400", description = "неправильные данные"),
-//            @ApiResponse(responseCode = "500", description = "в сервисе трабла")
-//    })
-    public void createPost(@Parameter(description = "Запрос на отправку уведомление")
-             @RequestBody PostRequest postRequest, BindingResult bindingResult) {
-        logger.info("получен JSON: {}", postRequest);
-        if (bindingResult.hasErrors()) {
-            logger.error("\nГдето чтото сломалось... {}",bindingResult.getAllErrors().get(0).getDefaultMessage());
-        }else{
-        postService.createPost(postRequest);}
+    @Operation(summary = "Создать новый пост")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "201", description = "Пост создан успешно"),
+        @ApiResponse(responseCode = "400", description = "Неверный ввод"),
+        @ApiResponse(responseCode = "401", description = "Надо авторизоваться"),
+        @ApiResponse(responseCode = "403", description = "Нет доступа")
+    })
+//    @ResponseStatus(HttpStatus.CREATED)
+    public ResponseEntity<PostResponse> createPost(
+            @Valid @RequestBody PostRequest postRequest,
+            Authentication authentication) {
+        logger.info("Creating new post for user: {}", authentication.getName());
+        PostResponse response = postService.createPost(postRequest, authentication.getName());
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
-    // Получить все посты
     @GetMapping
-    @Operation(summary = "получить все посты")
-//    @ApiResponses(value = {
-//            @ApiResponse(responseCode = "200", description = "всё ok"),
-//            @ApiResponse(responseCode = "400", description = "неправильные данные"),
-//            @ApiResponse(responseCode = "500", description = "в сервисе трабла")
-//    })
-    public List<PostResponse> getPosts(
-            @Parameter(description = "Количество элементов на странице")
-            @RequestParam(value = "limit", required = false) @Positive Integer limit) {
-
-        return postService.getAllPosts(limit);
+    @Operation(summary = "Получить все посты")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Посты получены успешно"),
+        @ApiResponse(responseCode = "401", description = "Надо авторизоваться")
+    })
+    public ResponseEntity<List<PostResponse>> getAllPosts() {
+        logger.info("Получаем все посты");
+        return ResponseEntity.ok(postService.getAllPosts());
     }
-
-
-    // Получить пост по ID
 
     @GetMapping("/{id}")
-    @Operation(summary = "Получение поста по id")
-//    @ApiResponses(value = {
-//            @ApiResponse(responseCode = "200", description = "Успех"),
-//            @ApiResponse(responseCode = "400", description = "Неверно переданные данные"),
-//            @ApiResponse(responseCode = "500", description = "Ошибка работы сервиса")
-//    })
-    public PostResponse getPostbyId(@Parameter(description = "Идентификатор")
-                                    @PathVariable @PositiveOrZero Long id) {
-        return Objects.requireNonNull(postService).getPost(id);
+    @Operation(summary = "Получить пост по id")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Пост получен успешно"),
+        @ApiResponse(responseCode = "404", description = "Пост не найден"),
+        @ApiResponse(responseCode = "401", description = "Надо авторизоваться")
+    })
+    public ResponseEntity<PostResponse> getPostById(@PathVariable @PositiveOrZero Long id) {
+        logger.info("Получение поста по ид: {}", id);
+        try {
+            return ResponseEntity.ok(postService.getPostById(id));
+        } catch (RuntimeException e) {
+            logger.error("ошибка получения поста: {}", e.getMessage());
+            return ResponseEntity.notFound().build();
+        }
     }
 
-
-    // обновить пост
-    @PreAuthorize("hasRole('ADMIN') or @postSecurity.isPostAuthor(principal, #id)")
-
-    @PutMapping("{id}")
-    @Operation(summary = "обновление поста")
-//    @ApiResponses(value = {
-//            @ApiResponse(responseCode = "200", description = "всё ok"),
-//            @ApiResponse(responseCode = "400", description = "неправильные данные"),
-//            @ApiResponse(responseCode = "500", description = "в сервисе трабла")
-//    })
-
-    public PostResponse updatePostById(@PathVariable @PositiveOrZero Long id,
-                                       @RequestBody PostRequest postRequest) {
-        return Objects.requireNonNull(postService).updatePost(id, postRequest);
+    @PutMapping("/{id}")
+    @Operation(summary = "Обновить пост")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Пост обновлен успешно"),
+        @ApiResponse(responseCode = "400", description = "Неверный ввод"),
+        @ApiResponse(responseCode = "401", description = "Надо авторизоваться"),
+        @ApiResponse(responseCode = "403", description = "Нет доступа - можно обновить только свои посты"),
+        @ApiResponse(responseCode = "404", description = "Пост не найден")
+    })
+    public ResponseEntity<PostResponse> updatePost(
+            @PathVariable @PositiveOrZero Long id,
+            @Valid @RequestBody PostRequest postRequest,
+            Authentication authentication) {
+        logger.info("Обновление поста {} пользователем {}", id, authentication.getName());
+        try {
+            PostResponse response = postService.updatePost(id, postRequest, authentication.getName());
+            return ResponseEntity.ok(response);
+        } catch (AccessDeniedException e) {
+            logger.warn("Доступ запрещен для пользователя {} обновление поста {}: {}", authentication.getName(), id, e.getMessage());
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        } catch (RuntimeException e) {
+            logger.error("Ошибка обновления поста: {}", e.getMessage());
+            return ResponseEntity.notFound().build();
+        }
     }
 
-
-    // Удалить пост
-    @PreAuthorize("hasRole('ADMIN') or @postSecurity.isPostAuthor(principal, #id)")
-
-    @DeleteMapping("{id}")
-    @Operation(summary = "удаление поста")
-//    @ApiResponses(value = {
-//            @ApiResponse(responseCode = "200", description = "всё ok"),
-//            @ApiResponse(responseCode = "400", description = "неправильные данные"),
-//            @ApiResponse(responseCode = "500", description = "в сервисе трабла")
-//    })
-    public void deletePostById(@PathVariable @PositiveOrZero Long id) {
-
-        Objects.requireNonNull(postService).deletePost(id);
+    @DeleteMapping("/{id}")
+    @Operation(summary = "Delete post")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "204", description = "Post deleted successfully"),
+        @ApiResponse(responseCode = "401", description = "Unauthorized"),
+        @ApiResponse(responseCode = "403", description = "Forbidden - can only delete own posts"),
+        @ApiResponse(responseCode = "404", description = "Post not found")
+    })
+    public ResponseEntity<Void> deletePost(
+            @PathVariable @PositiveOrZero Long id,
+            Authentication authentication) {
+        logger.info("Удаление поста {} юзером {}", id, authentication.getName());
+        try {
+            postService.deletePost(id, authentication.getName());
+            return ResponseEntity.noContent().build();
+        } catch (AccessDeniedException e) {
+            logger.warn("запрещено юзеру {} удалить пост {}: {}",
+                authentication.getName(), id, e.getMessage());
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        } catch (RuntimeException e) {
+            logger.error("какаято ошибка: {}", e.getMessage());
+            return ResponseEntity.notFound().build();
+        }
     }
-
-
 }

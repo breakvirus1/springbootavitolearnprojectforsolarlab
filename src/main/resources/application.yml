@@ -35,7 +35,7 @@ spring:
     jpa:
         database-platform: org.hibernate.dialect.PostgreSQLDialect
         hibernate:
-            ddl-auto: update
+            ddl-auto: create-drop
         properties:
             hibernate:
                 transaction:
@@ -48,10 +48,10 @@ springdoc:
     swagger-ui:
         enabled: true
         operationsSorter: alpha
-        path: /swagger-ui
+        path: /
         tagsSorter: alpha
 server:
-    port: 8080
+    port: 9080
     servlet:
         context-path: /
 

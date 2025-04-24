@@ -3,8 +3,11 @@ package com.example.avitorest1.controller;
 import com.example.avitorest1.entity.AuthorEntity;
 import com.example.avitorest1.repository.AuthorRepository;
 import com.example.avitorest1.request.AuthorRequest;
+
 import com.example.avitorest1.response.AuthorResponse;
+import com.example.avitorest1.response.PostResponse;
 import com.example.avitorest1.service.AuthorService;
+import com.example.avitorest1.service.PostService;
 import io.swagger.v3.oas.annotations.Operation;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -22,7 +25,6 @@ import java.util.List;
 import java.util.Optional;
 
 
-import static org.springframework.data.jpa.domain.AbstractPersistable_.id;
 
 @RestController
 @AllArgsConstructor
@@ -32,10 +34,11 @@ public class AuthorController {
     private static final Logger logger = LoggerFactory.getLogger(AuthorController.class);
     private final AuthorService authorService;
     private final AuthorRepository authorRepository;
+    private final PostService postService;
 
-    // Создать нового автора
     @PostMapping
     @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @Operation(summary = "Создание автора")
     public ResponseEntity<AuthorEntity> createAuthor(@RequestBody AuthorRequest authorRequest) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         logger.info("Создание нового автора: {} пользователем: {}", authorRequest.getUsername(), authentication.getName());
@@ -44,43 +47,107 @@ public class AuthorController {
         return new ResponseEntity<>(createdAuthor, HttpStatus.CREATED);
     }
 
-    // Получить всех авторов
     @GetMapping
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @Operation(summary = "Получение списка авторов")
     public ResponseEntity<List<AuthorEntity>> getAllAuthors() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        logger.info("Получение списка всех авторов пользователем: {}", authentication.getName());
+        logger.info("Получение списка всех авторов");
         List<AuthorEntity> authors = authorService.getAllAuthors();
         return ResponseEntity.ok(authors);
     }
 
-    // Получить автора по ID
     @GetMapping("{id}")
+    @Operation(summary = "Получение автора по id")
     public ResponseEntity<AuthorEntity> getAuthorById(@PathVariable Long id) {
         Optional<AuthorEntity> author = authorRepository.findById(id);
         return author.map(value -> new ResponseEntity<>(value, HttpStatus.OK))
                 .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
-    // Обновить автора
+    @GetMapping("/{id}/posts")
+    @Operation(summary = "Получение всех постов автора по id")
+    public ResponseEntity<List<PostResponse>> getAuthorPosts(@PathVariable Long id) {
+        logger.info("Получение всех постов автора с ID: {}", id);
+        if (!authorRepository.findById(id).isPresent()) {
+            logger.warn("Автор с ID {} не найден", id);
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        List<PostResponse> posts = postService.getPostsByAuthorId(id);
+        return ResponseEntity.ok(posts);
+    }
+
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<AuthorEntity> updateAuthor(@PathVariable Long id, @RequestBody AuthorEntity updatedAuthor) {
+    @Operation(summary = "Обновление автора по id")
+    public ResponseEntity<AuthorEntity> updateAuthor(@PathVariable Long id, @RequestBody AuthorRequest updatedAuthor) {
         Optional<AuthorEntity> existingAuthor = authorRepository.findById(id);
         if (existingAuthor.isPresent()) {
-            updatedAuthor.setId(id);
-            AuthorEntity savedAuthor = authorRepository.save(updatedAuthor);
-            return new ResponseEntity<>(savedAuthor, HttpStatus.OK);
+            authorService.updateAuthor(id,updatedAuthor);
         }
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
-    // Удалить автора
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @DeleteMapping("/{id}")
+    @Operation(summary = "Удаление автора по id")
     public ResponseEntity<AuthorEntity> deleteAuthor(@PathVariable Long id) {
-            authorRepository.deleteById(id);
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        authorService.deleteAuthor(id);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
 
+    @PostMapping("/{buyerId}/buy/{postId}")
+    @Operation(summary = "Покупка поста одним автором у другого")
+    public ResponseEntity<?> buyPost(@PathVariable Long buyerId, @PathVariable Long postId) {
+        try {
+            authorService.buyPost(buyerId, postId);
+            return ResponseEntity.ok().body("Пост успешно куплен автором");
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @PostMapping("/{id}/money/add")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @Operation(summary = "Добавление денег автору")
+    public ResponseEntity<AuthorEntity> addMoney(
+            @PathVariable Long id,
+            @RequestParam Double amount) {
+        try {
+            AuthorEntity updatedAuthor = authorService.addMoney(id, amount);
+            return ResponseEntity.ok(updatedAuthor);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build();
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @PostMapping("/{id}/money/minusmoney")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @Operation(summary = "Снятие денег у автора")
+    public ResponseEntity<AuthorEntity> minusMoney(
+            @PathVariable Long id,
+            @RequestParam Double amount) {
+        try {
+            AuthorEntity updatedAuthor = authorService.minusMoney(id, amount);
+            return ResponseEntity.ok(updatedAuthor);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build();
+        } catch (RuntimeException e) {
+            if (e.getMessage().equals("Недостаточно средств")) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            }
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @GetMapping("/{id}/money/balance")
+    @Operation(summary = "Получение баланса автора")
+    public ResponseEntity<Double> getBalance(@PathVariable Long id) {
+        try {
+            Double balance = authorService.getBalance(id);
+            return ResponseEntity.ok(balance);
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 }

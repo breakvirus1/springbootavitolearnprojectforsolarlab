@@ -4,14 +4,16 @@ import com.example.avitorest1.entity.PostEntity;
 import com.example.avitorest1.request.PostRequest;
 import com.example.avitorest1.response.PostResponse;
 import org.mapstruct.Mapper;
-
-
-import java.util.List;
+import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
 public interface PostMapper {
-    PostResponse toPostResponse(PostEntity postEntity);
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "author", ignore = true)
+    @Mapping(target = "createdAt", expression = "java(java.time.LocalDateTime.now())")
     PostEntity mapPost(PostRequest postRequest);
-    List<PostResponse> toPostResponseList(List<PostEntity> postEntityList);
 
+    @Mapping(target = "authorId", source = "author.id")
+    @Mapping(target = "authorName", source = "author.username")
+    PostResponse mapPostResponse(PostEntity postEntity);
 }

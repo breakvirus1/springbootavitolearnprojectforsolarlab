@@ -1,14 +1,12 @@
 package com.example.avitorest1.controller;
 
-import com.example.avitorest1.DTO.LoginDto;
 import com.example.avitorest1.repository.AuthorRepository;
 import com.example.avitorest1.request.AuthorRequest;
-import com.example.avitorest1.response.JWTAuthResponse;
+import com.example.avitorest1.request.LoginRequest;
+import com.example.avitorest1.response.AuthResponse;
 import com.example.avitorest1.service.AuthService;
 import com.example.avitorest1.service.AuthorService;
 import lombok.AllArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,22 +18,32 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthController {
     private final AuthorService authorService;
     private final AuthorRepository authorRepository;
-    private AuthService authService;
+    private final AuthService authService;
 
-    @PostMapping({"/login"})
-    public ResponseEntity<String> login(@RequestBody LoginDto loginDto) {
-        String token = authService.login(loginDto);
-        return ResponseEntity.ok(token);
+    @PostMapping("/register")
+    public AuthResponse register(@RequestBody AuthorRequest authorRequest) {
+        try {
+            var author = authorService.createAuthor(authorRequest);
+            // After successful registration, perform login
+            LoginRequest loginRequest = new LoginRequest();
+            loginRequest.setUsername(authorRequest.getUsername());
+            loginRequest.setPassword(authorRequest.getPassword());
+            String token = authService.login(loginRequest);
+            return AuthResponse.success(token, author.getUsername(), author.getRole());
+        } catch (Exception e) {
+            return AuthResponse.error("Ошибка при регистрации: " + e.getMessage());
+        }
     }
-    @PostMapping({"/register"})
-    public ResponseEntity<String> register(@RequestBody AuthorRequest authorRequest) {
-        authService.register(authorRequest);
-        return ResponseEntity.ok("Пользователь зареген");
 
-    }
-    @PostMapping("/logout")
-    public ResponseEntity<String> logout() {
-        authService.logout();
-        return ResponseEntity.ok("Успешный выход из системы");
+    @PostMapping("/login")
+    public AuthResponse login(@RequestBody LoginRequest loginRequest) {
+        try {
+            String token = authService.login(loginRequest);
+            var author = authorRepository.findByUsername(loginRequest.getUsername())
+                .orElseThrow(() -> new RuntimeException("Пользователь не найден"));
+            return AuthResponse.success(token, author.getUsername(), author.getRole());
+        } catch (Exception e) {
+            return AuthResponse.error("Ошибка при входе: " + e.getMessage());
+        }
     }
 }
