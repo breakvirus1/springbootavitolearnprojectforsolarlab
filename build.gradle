@@ -1,7 +1,8 @@
 plugins {
     id 'java'
     id 'org.springframework.boot' version '3.1.12' 
-    id 'io.spring.dependency-management' version '1.1.2' 
+    id 'io.spring.dependency-management' version '1.1.2'
+    id 'org.flywaydb.flyway' version '9.16.3'
 }
 
 
@@ -48,16 +49,23 @@ dependencies {
 
     testImplementation "com.opentable.components:otj-pg-embedded:1.1.0"
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.springframework.security:spring-security-test'
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.2'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.9.2'
     testImplementation 'org.mockito:mockito-core:5.8.0'
     testImplementation 'com.h2database:h2'
+    testImplementation 'org.springframework:spring-test'
+    testImplementation 'org.springframework.security:spring-security-config'
+    testImplementation 'org.springframework.security:spring-security-web'
+    testImplementation 'org.springframework.security:spring-security-core'
 
     testImplementation 'org.junit.jupiter:junit-jupiter-api'
     testImplementation 'org.mockito:mockito-core'
     testImplementation 'org.mockito:mockito-junit-jupiter'
     testImplementation 'org.slf4j:slf4j-api'
 }
+
+
 
 tasks.named('test') {
     useJUnitPlatform()

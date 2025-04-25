@@ -1,10 +1,8 @@
-
 # Используем официальный образ OpenJDK
 FROM openjdk:21-jdk-slim AS build
 LABEL authors="alexmozhaykin"
 # Устанавливаем рабочую директорию
 WORKDIR /app
-
 
 # Копируем файлы Gradle Wrapper и конфигурации
 COPY gradlew .
@@ -18,13 +16,10 @@ RUN chmod +x gradlew
 COPY src ./src
 
 # Сборка проекта
-
-#RUN ./gradlew build --no-daemon
 RUN ./gradlew clean build --no-daemon
 
 # Создаем финальный образ
 FROM openjdk:21-jdk-slim
-
 
 # Устанавливаем рабочую директорию
 WORKDIR /app

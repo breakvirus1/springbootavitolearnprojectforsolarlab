@@ -18,14 +18,17 @@ CREATE TABLE posts
     description VARCHAR(255)                            NOT NULL,
     price       INTEGER                                 NOT NULL,
     category    VARCHAR(255)                            NOT NULL,
-    date        TIMESTAMP WITHOUT TIME ZONE             NOT NULL,
-    created_at  TIMESTAMP WITHOUT TIME ZONE             NOT NULL,
+    date        TIMESTAMP WITHOUT TIME ZONE NOT NULL,
+    created_at  TIMESTAMP WITHOUT TIME ZONE NOT NULL,
     author_id   BIGINT                                  NOT NULL,
     CONSTRAINT pk_posts PRIMARY KEY (id)
 );
 
 ALTER TABLE authors
     ADD CONSTRAINT uc_authors_email UNIQUE (email);
+
+ALTER TABLE posts
+    ADD CONSTRAINT uc_posts_description UNIQUE (description);
 
 ALTER TABLE posts
     ADD CONSTRAINT FK_POSTS_ON_AUTHOR FOREIGN KEY (author_id) REFERENCES authors (id);
